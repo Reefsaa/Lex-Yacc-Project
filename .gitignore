@@ -1,0 +1,4 @@
+scanner
+lex.yy.c
+a.out
+.DS_Store

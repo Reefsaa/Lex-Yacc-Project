@@ -1,0 +1,4 @@
+int X
+double Y
+X = 10
+Y = 3.14

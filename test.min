@@ -1,0 +1,7 @@
+int main() {
+int X
+int Y
+X = 10
+Y = X + 5 * 2
+print(X, Y)
+}

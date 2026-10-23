@@ -1,0 +1,5 @@
+int X
+! this is a comment !
+Y = 10
+! another comment !
+Z = 20
