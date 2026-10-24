@@ -129,7 +129,10 @@ function_call
 
 void yyerror(const char *message)
 {
-    fprintf(stderr, "Syntax error at line %d: %s\n", yylineno, message);
+    if (lexical_errors == 0) {
+        fprintf(stderr, "Syntax error at line %d: %s\n",
+                yylineno, message);
+    }
 }
 
 int main(int argc, char **argv)
