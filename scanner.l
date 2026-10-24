@@ -1,76 +1,85 @@
 %{
 #include <stdio.h>
+#include "y.tab.h"
+
+extern int lexical_errors;
 %}
 
-%option yylineno
+%option yylineno noyywrap
 
 %%
 
-"int"       { printf("INT: %s\n", yytext); }
-"double"    { printf("DOUBLE: %s\n", yytext); }
-"main"      { printf("MAIN: %s\n", yytext); }
-"if"        { printf("IF: %s\n", yytext); }
-"else"      { printf("ELSE: %s\n", yytext); }
-"print"     { printf("PRINT: %s\n", yytext); }
-"get"       { printf("GET: %s\n", yytext); }
-"while"     { printf("WHILE: %s\n", yytext); }
-"void"      { printf("VOID: %s\n", yytext); }
-[A-Z][a-zA-Z0-9_]*  { printf("ID: %s\n", yytext); }
-[0-9]+"."[0-9]+ {
-    printf("DOUBLE_LITERAL: %s\n", yytext);
-}
+"int"       { return INT; }
+"double"    { return DOUBLE; }
+"main"      { return MAIN; }
+"if"        { return IF; }
+"else"      { return ELSE; }
+"print"     { return PRINT; }
+"get"       { return GET; }
+"while"     { return WHILE; }
+"void"      { return VOID; }
 
-[0-9]+ {
-    printf("INT_LITERAL: %s\n", yytext);
-}
+"=="        { return EQ; }
+"<>"        { return NE; }
+"<="        { return LE; }
+">="        { return GE; }
+"<"         { return LT; }
+">"         { return GT; }
+"="         { return ASG; }
 
-"+"         { printf("PLUS: %s\n", yytext); }
-"-"         { printf("MINUS: %s\n", yytext); }
-"*"         { printf("TIMES: %s\n", yytext); }
-"/"         { printf("DIV: %s\n", yytext); }
-"="         { printf("ASG: %s\n", yytext); }
-"=="        { printf("EQ: %s\n", yytext); }
-"<>"        { printf("NE: %s\n", yytext); }
-"<="        { printf("LE: %s\n", yytext); }
-">="        { printf("GE: %s\n", yytext); }
-"<"         { printf("LT: %s\n", yytext); }
-">"         { printf("GT: %s\n", yytext); }
+"+"         { return PLUS; }
+"-"         { return MINUS; }
+"*"         { return TIMES; }
+"/"         { return DIV; }
 
-"("         { printf("LPAREN: %s\n", yytext); }
-")"         { printf("RPAREN: %s\n", yytext); }
-"{"         { printf("OP: %s\n", yytext); }
-"}"         { printf("CL: %s\n", yytext); }
-","         { printf("COMMA: %s\n", yytext); }
-\"([^\"\\\n]|\\.)*\" {
-    printf("STRING_LITERAL: %s\n", yytext);
-}
+"("         { return LPAREN; }
+")"         { return RPAREN; }
+"{"         { return OP; }
+"}"         { return CL; }
+","         { return COMMA; }
 
-"!"[^!\n]*"!"    { /* Ignore comments */ }
-"!"[^!\n]*       {
-    printf("Lexical Error: Unterminated comment at line %d\n", yylineno);
-}
+[0-9]+"."[0-9]+ { return DOUBLE_LITERAL; }
+[0-9]+          { return INT_LITERAL; }
 
-[ \t\r\n]+  { /* Ignore whitespace */ }
+\"([^\"\\\n]|\\.)*\" { return STRING_LITERAL; }
+
+[A-Z][a-zA-Z0-9_]* { return ID; }
+
+"!"[^!\n]*"!" { /* Ignore comments */ }
+
+[ \t\r\n]+ { /* Ignore whitespace */ }
 
 [0-9]+[a-zA-Z_][a-zA-Z0-9_]* {
-    printf("Lexical Error: Invalid identifier '%s' at line %d\n",
-           yytext, yylineno);
+    fprintf(stderr,
+        "Lexical error at line %d: invalid identifier '%s'\n",
+        yylineno, yytext);
+    lexical_errors++;
+    return LEX_ERROR;
 }
 
 [a-z][a-zA-Z0-9_]* {
-    printf("Lexical Error: Invalid identifier '%s' at line %d\n",
-           yytext, yylineno);
+    fprintf(stderr,
+        "Lexical error at line %d: invalid identifier '%s'\n",
+        yylineno, yytext);
+    lexical_errors++;
+    return LEX_ERROR;
+}
+
+"!"[^!\n]* {
+    fprintf(stderr,
+        "Lexical error at line %d: unterminated comment\n",
+        yylineno);
+    lexical_errors++;
+    return LEX_ERROR;
 }
 
 . {
-    printf("Lexical Error: Invalid character '%s' at line %d\n",
-           yytext, yylineno);
+    fprintf(stderr,
+        "Lexical error at line %d: invalid character '%s'\n",
+        yylineno, yytext);
+    lexical_errors++;
+    return LEX_ERROR;
 }
 
 %%
-
-int main(void)
-{
-    yylex();
-    return 0;
-}
+int lexical_errors = 0;
