@@ -1,11 +1,17 @@
 %{
 #include <stdio.h>
+#include <string.h>
 #include "y.tab.h"
 
 extern int lexical_errors;
+#define YY_USER_ACTION do { \
+    yylloc.first_line = yylineno; \
+    yylloc.last_line = yylineno; \
+} while (0);
 %}
 
 %option yylineno noyywrap
+%x COMMENT
 
 %%
 
@@ -43,10 +49,20 @@ extern int lexical_errors;
 
 \"([^\"\\\n]|\\.)*\" { return STRING_LITERAL; }
 
-[A-Z][a-zA-Z0-9_]* { return ID; }
-
-"!"[^!\n]*"!" { /* Ignore comments */ }
-
+[A-Z][a-zA-Z0-9_]* {
+    yylval.name = strdup(yytext);
+    return ID;
+}
+"!"             { BEGIN(COMMENT); }
+<COMMENT>"!"    { BEGIN(INITIAL); }
+<COMMENT>[^!]+  { /* Ignore comment content */ }
+<COMMENT><<EOF>> {
+    fprintf(stderr,
+        "Lexical error at line %d: unterminated comment\n",
+        yylineno);
+    lexical_errors++;
+    return LEX_ERROR;
+}
 [ \t\r\n]+ { /* Ignore whitespace */ }
 
 [0-9]+[a-zA-Z_][a-zA-Z0-9_]* {
@@ -61,14 +77,6 @@ extern int lexical_errors;
     fprintf(stderr,
         "Lexical error at line %d: invalid identifier '%s'\n",
         yylineno, yytext);
-    lexical_errors++;
-    return LEX_ERROR;
-}
-
-"!"[^!\n]* {
-    fprintf(stderr,
-        "Lexical error at line %d: unterminated comment\n",
-        yylineno);
     lexical_errors++;
     return LEX_ERROR;
 }
