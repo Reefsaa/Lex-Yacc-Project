@@ -236,7 +236,6 @@ term
 factor
     : LPAREN exp RPAREN
     | INT_LITERAL
-    | DOUBLE_LITERAL
     | STRING_LITERAL
     | ID { check_declared($1, @1.first_line); free($1); }
     ;
