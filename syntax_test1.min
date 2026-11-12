@@ -1,0 +1,5 @@
+int main() {
+    int X
+    X = 10
+    print(X
+}

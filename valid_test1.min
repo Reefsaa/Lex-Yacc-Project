@@ -1,0 +1,7 @@
+int main() {
+    int X, Y, Z
+    X = 10
+    Y = 20
+    Z = X + Y * 2
+    print(Z)
+}

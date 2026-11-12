@@ -1,0 +1,12 @@
+int main() {
+    int X
+    X = 5
+    if (X > 10) {
+        print(X)
+    } else {
+        X = X + 1
+    }
+    while (X < 20) {
+        X = X + 2
+    }
+}
