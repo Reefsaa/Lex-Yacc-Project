@@ -44,7 +44,6 @@ extern int lexical_errors;
 "}"         { return CL; }
 ","         { return COMMA; }
 
-[0-9]+"."[0-9]+ { return DOUBLE_LITERAL; }
 [0-9]+          { return INT_LITERAL; }
 
 \"([^\"\\\n]|\\.)*\" { return STRING_LITERAL; }
